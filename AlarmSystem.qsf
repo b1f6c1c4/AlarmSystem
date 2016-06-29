@@ -78,4 +78,4 @@ set_location_assignment PIN_185 -to RS
 # UART
 set_location_assignment PIN_44 -to TX
 set_location_assignment PIN_46 -to RX
-set_global_assignment -name VERILOG_FILE Serial.v
+set_global_assignment -name VERILOG_FILE UART.v
