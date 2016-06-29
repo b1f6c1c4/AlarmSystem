@@ -7,11 +7,15 @@ module AlarmSystem_tb;
    wire ready;
    reg send;
    reg [7:0] data;
-   wire TX;
-   wire arrived;
    wire [7:0] dataO;
+   wire SCLK;
+   wire MISO;
+   wire MOSI;
+   wire CS;
+   wire arrived;
+   wire [7:0] dataR;
    
-   AlarmSystem mdl(Clock, Reset, ready, send, data, TX, arrived, dataO);
+   AlarmSystem mdl(Clock, Reset, ready, send, data, dataO, SCLK, MISO, MOSI, CS, arrived, dataR);
    
    initial
       begin
@@ -37,6 +41,7 @@ module AlarmSystem_tb;
          #1 send = 1'b1;
          data = d;
          #4 send = 1'b0;
+         #2;
       end
    endtask
    

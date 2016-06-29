@@ -78,4 +78,16 @@ set_location_assignment PIN_185 -to RS
 # UART
 set_location_assignment PIN_44 -to TX
 set_location_assignment PIN_46 -to RX
+# Bluetooth
+set_location_assignment PIN_107 -to TXD_Bluebooth
+set_location_assignment PIN_105 -to RXD_Bluebooth
+set_location_assignment PIN_101 -to KEY_Bluebooth
+set_location_assignment PIN_97 -to LED_Bluebooth
+# SPI
+set_location_assignment PIN_90 -to SCK
+set_location_assignment PIN_88 -to MIDO
+set_location_assignment PIN_82 -to MODI
+set_location_assignment PIN_80 -to CS_ALS
+set_global_assignment -name VERILOG_FILE AlarmSystem.v
 set_global_assignment -name VERILOG_FILE UART.v
+set_global_assignment -name VERILOG_FILE SPI.v

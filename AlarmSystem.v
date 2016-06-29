@@ -5,16 +5,24 @@ module AlarmSystem(
    output ready,
    input send,
    input [7:0] data,
-   output TX,
+   output [7:0] dataO,
+   output SCLK,
+   output MISO,
+   output MOSI,
+   output CS,
    output arrived,
    output [7:0] dataR);
    
-   UART_WriteD(.Clock(Clock), .Reset(Reset),
+   SPI_Master(.Clock(Clock), .Reset(Reset),
                .ready(ready), .send(send),
-               .data(data), .TX(TX));
+               .data(data), .dataO(dataO),
+               .SCLK(SCLK), .MISO(MISO),
+               .MOSI(MOSI), .CS(CS));
    
-   UART_ReadD(.Clock(Clock), .Reset(Reset),
+   SPI_Slave(.Clock(Clock), .Reset(Reset),
               .arrived(arrived),
-              .data(dataR), .RX(TX));
+               .data(8'b10101101), .dataO(dataR),
+               .SCLK(SCLK), .MISO(MISO),
+               .MOSI(MOSI), .CS(CS));
    
 endmodule
