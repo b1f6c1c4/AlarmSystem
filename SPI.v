@@ -4,6 +4,7 @@ module SPI_Master(
    input Reset,
    output ready,
    input send,
+   output reg arrived,
    input [N-1:0] data,
    output reg [N-1:0] dataO,
    output reg SCLK,
@@ -85,6 +86,14 @@ module SPI_Master(
          dataO <= {N{1'b0}};
       else if (state == S_SEND && ~|cnt_bit && ~|cnt_freq && ~SCLK)
          dataO <= shift_reg;
+   
+   always @(posedge Clock, negedge Reset)
+      if (~Reset)
+         arrived <= 1'b0;
+      else if (state == S_SEND && ~|cnt_bit && ~|cnt_freq && ~SCLK)
+         arrived <= 1'b1;
+      else
+         arrived <= 1'b0;
    
 endmodule
 

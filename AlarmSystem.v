@@ -1,28 +1,32 @@
 `default_nettype none
 module AlarmSystem(
-   input Clock,
-   input Reset,
-   output ready,
-   input send,
-   input [7:0] data,
-   output [7:0] dataO,
+   input CLK,
+   input RST,
+   input RX,
+   output TX,
    output SCLK,
-   output MISO,
+   input MISO,
    output MOSI,
-   output CS,
-   output arrived,
-   output [7:0] dataR);
+   output CS_ALS);
    
-   SPI_Master(.Clock(Clock), .Reset(Reset),
-               .ready(ready), .send(send),
+   wire Clock = CLK;
+   wire Reset = RST;
+   
+   wire arr, ready;
+   wire [7:0] data;
+   wire arrx, readyx;
+   wire [14:0] dataO;
+   
+   UART_ReadD ur(.Clock(Clock), .Reset(Reset),
+                 .arrived(arr), .data(data),
+                 .RX(RX));
+   UART_WriteD uw(.Clock(Clock), .Reset(Reset),
+                  .ready(ready), .send(arrx),
+                  .data(dataO[10:3]), .TX(TX));
+   SPI_Master #(15) sm(.Clock(Clock), .Reset(Reset),
+               .ready(readyx), .send(arr), .arrived(arrx),
                .data(data), .dataO(dataO),
                .SCLK(SCLK), .MISO(MISO),
-               .MOSI(MOSI), .CS(CS));
-   
-   SPI_Slave(.Clock(Clock), .Reset(Reset),
-              .arrived(arrived),
-               .data(8'b10101101), .dataO(dataR),
-               .SCLK(SCLK), .MISO(MISO),
-               .MOSI(MOSI), .CS(CS));
+               .MOSI(MOSI), .CS(CS_ALS));
    
 endmodule

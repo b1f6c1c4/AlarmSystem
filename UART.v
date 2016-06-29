@@ -10,7 +10,7 @@ module UART_WriteD(
 `ifdef SIMULATION
    parameter div = 24;
 `else
-   parameter div = 651; // 38400
+   parameter div = 217; // 115200
 `endif 
    
    localparam S_IDLE = 1'h0;
@@ -69,7 +69,7 @@ module UART_ReadD(
 `ifdef SIMULATION
    parameter div = 2;
 `else
-   parameter div = 18;
+   parameter div = 18; // 12x 115200
 `endif
    
    localparam S_IDLE = 4'h0;
