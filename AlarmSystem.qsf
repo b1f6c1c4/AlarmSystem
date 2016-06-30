@@ -33,13 +33,15 @@ set_location_assignment PIN_116 -to V[2]
 set_location_assignment PIN_117 -to V[1]
 set_location_assignment PIN_118 -to V[0]
 # LED
-set_location_assignment PIN_144 -to LD[7]
-set_location_assignment PIN_143 -to LD[6]
-set_location_assignment PIN_142 -to LD[5]
-set_location_assignment PIN_141 -to LD[4]
-set_location_assignment PIN_139 -to LD[3]
-set_location_assignment PIN_138 -to LD[2]
-set_location_assignment PIN_137 -to LD[1]
+set_location_assignment PIN_144 -to LD[9]
+set_location_assignment PIN_143 -to LD[8]
+set_location_assignment PIN_142 -to LD[7]
+set_location_assignment PIN_141 -to LD[6]
+set_location_assignment PIN_139 -to LD[5]
+set_location_assignment PIN_138 -to LD[4]
+set_location_assignment PIN_137 -to LD[3]
+set_location_assignment PIN_135 -to LD[2]
+set_location_assignment PIN_134 -to LD[1]
 set_location_assignment PIN_120 -to LD[0]
 # LED 7-SEG
 set_location_assignment PIN_149 -to SD[0]
@@ -63,6 +65,9 @@ set_location_assignment PIN_60 -to SB[4]
 set_location_assignment PIN_59 -to SB[5]
 set_location_assignment PIN_58 -to SB[6]
 set_location_assignment PIN_57 -to SB[7]
+# Button
+set_location_assignment PIN_193 -to S1
+set_location_assignment PIN_192 -to S2
 # LCD
 set_location_assignment PIN_165 -to D[7]
 set_location_assignment PIN_168 -to D[6]
@@ -79,22 +84,25 @@ set_location_assignment PIN_185 -to RS
 set_location_assignment PIN_44 -to TX
 set_location_assignment PIN_46 -to RX
 # Bluetooth
-set_location_assignment PIN_107 -to TXD_Bluetooth
-set_location_assignment PIN_105 -to RXD_Bluetooth
+set_location_assignment PIN_105 -to TXD_Bluetooth
+set_location_assignment PIN_107 -to RXD_Bluetooth
 set_location_assignment PIN_101 -to KEY_Bluetooth
-set_location_assignment PIN_97 -to LED_Bluetooth
 # SPI
-set_location_assignment PIN_90 -to SCLK
-set_location_assignment PIN_88 -to MISO
-set_location_assignment PIN_82 -to MOSI
+set_location_assignment PIN_97 -to SCLK
+set_location_assignment PIN_90 -to MISO
+set_location_assignment PIN_88 -to MOSI
 # PmodALS
-set_location_assignment PIN_80 -to CS_ALS
+set_location_assignment PIN_82 -to CS_ALS
 # PmodACL2
-set_location_assignment PIN_76 -to CS_ACL2
-set_location_assignment PIN_74 -to INT_ACL2
+set_location_assignment PIN_80 -to CS_ACL2
+set_location_assignment PIN_75 -to INT_ACL2
+# Ultrasonic
+set_location_assignment PIN_70 -to Trig_US
+set_location_assignment PIN_68 -to Echo_US
 set_global_assignment -name VERILOG_FILE AlarmSystem.v
 set_global_assignment -name VERILOG_FILE ram.v
 set_global_assignment -name VERILOG_FILE UART.v
 set_global_assignment -name VERILOG_FILE SPI.v
 set_global_assignment -name VERILOG_FILE PmodACL2.v
 set_global_assignment -name VERILOG_FILE PmodALS.v
+set_global_assignment -name VERILOG_FILE Ultrasonic.v
