@@ -20,8 +20,8 @@ module AlarmSystem(
    wire Clock = CLK;
    wire Reset = RST;
    
-   assign TX = TXD_Bluetooth;
-   assign RXD_Bluetooth = RX;
+   //assign TX = TXD_Bluetooth;
+   //assign RXD_Bluetooth = RX;
    
    assign Buzz = ~INT_ACL2;
    assign LD = {INT_ACL2,illum[3:0],dist[13:9]};
@@ -42,5 +42,26 @@ module AlarmSystem(
    Ultrasonic us(
       .Clock(Clock), .Reset(Reset),
       .dist(dist), .Trig(Trig_US), .Echo(Echo_US));
-   
+	
+	reg send_uart;
+	wire uart_rd;
+	UART_WriteD uart_inst(
+		.Clock(Clock), .Reset(Reset), .ready(uart_rd),
+		.send(send_uart), .data(illum), .TX(TX)
+   );
+	
+	wire clk_1hz;
+	divx divx_1Hz(
+		.CLK(Clock), .RST(Reset), .DIV(25000000), .CLKout(clk_1hz)
+	);
+	
+	always @ (posedge clk_1hz, negedge Reset) 
+		if(~Reset) begin
+			
+		end else begin
+		// TODO...
+		
+		
+		
+		end
 endmodule

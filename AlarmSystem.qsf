@@ -2,7 +2,7 @@ set_global_assignment -name FAMILY "Cyclone II"
 set_global_assignment -name DEVICE EP2C5Q208C8
 set_global_assignment -name TOP_LEVEL_ENTITY AlarmSystem
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1"
-set_global_assignment -name LAST_QUARTUS_VERSION "13.0 SP1"
+set_global_assignment -name LAST_QUARTUS_VERSION 13.0
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
@@ -18,7 +18,6 @@ set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 # Common
 set_location_assignment PIN_132 -to CLK
 set_location_assignment PIN_48 -to RST
@@ -99,6 +98,8 @@ set_location_assignment PIN_75 -to INT_ACL2
 # Ultrasonic
 set_location_assignment PIN_70 -to Trig_US
 set_location_assignment PIN_68 -to Echo_US
+
+set_global_assignment -name VERILOG_FILE divx.v
 set_global_assignment -name VERILOG_FILE AlarmSystem.v
 set_global_assignment -name VERILOG_FILE ram.v
 set_global_assignment -name VERILOG_FILE UART.v
@@ -106,3 +107,16 @@ set_global_assignment -name VERILOG_FILE SPI.v
 set_global_assignment -name VERILOG_FILE PmodACL2.v
 set_global_assignment -name VERILOG_FILE PmodALS.v
 set_global_assignment -name VERILOG_FILE Ultrasonic.v
+set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH main_tb -section_id eda_simulation
+set_global_assignment -name EDA_TEST_BENCH_NAME main_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id main_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME main_tb -section_id main_tb
+set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "1 ms" -section_id main_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE main_tb.v -section_id main_tb
+set_global_assignment -name SIMULATION_MODE TIMING
+set_global_assignment -name EDA_GENERATE_FUNCTIONAL_NETLIST ON -section_id eda_simulation
+set_global_assignment -name VECTOR_OUTPUT_FORMAT VWF
+set_global_assignment -name INCREMENTAL_VECTOR_INPUT_SOURCE "D:/altera/13.0/AlarmSystem/Waveform.vwf"
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
