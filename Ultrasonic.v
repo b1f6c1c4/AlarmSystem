@@ -14,16 +14,16 @@ module Ultrasonic(
    parameter TWAIT = 100000;
    parameter TIDLE = 5000000;
 `endif
-   
+
    localparam S_IDLE = 2'h0;
    localparam S_TRIG = 2'h1;
    localparam S_WAIT = 2'h2;
    localparam S_MEAS = 2'h3;
-   
+
    assign Trig = (state == S_TRIG);
-   
+
    reg [1:0] state;
-   
+
    reg [31:0] count;
    always @(posedge Clock, negedge Reset)
       if (~Reset)
@@ -45,7 +45,7 @@ module Ultrasonic(
                else
                   count <= count + 1;
          endcase
-   
+
    always @(posedge Clock, negedge Reset)
       if (~Reset)
          state <= S_IDLE;
@@ -66,11 +66,11 @@ module Ultrasonic(
                if (~Echo)
                   state <= S_IDLE;
          endcase
-   
+
    always @(posedge Clock, negedge Reset)
       if (~Reset)
          dist <= 0;
       else if (state == S_MEAS && ~Echo)
          dist <= count;
-   
+
 endmodule
