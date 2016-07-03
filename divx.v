@@ -1,7 +1,7 @@
 `timescale 1 ns/ 1 ps
-module divx(input wire CLK, input wire RST,input wire[31:0] DIV, output reg CLKout);
-
-integer cnt; 
+module divx(input wire CLK, input wire RST, output reg CLKout);
+parameter DIV= 25000;
+integer cnt;
 
 always @( posedge CLK or negedge RST)      //分频50Hz
 	begin

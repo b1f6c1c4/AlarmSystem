@@ -43,25 +43,35 @@ module AlarmSystem(
       .Clock(Clock), .Reset(Reset),
       .dist(dist), .Trig(Trig_US), .Echo(Echo_US));
 	
-	reg send_uart;
-	wire uart_rd;
-	UART_WriteD uart_inst(
-		.Clock(Clock), .Reset(Reset), .ready(uart_rd),
-		.send(send_uart), .data(illum), .TX(TX)
-   );
+	reg uart_trig;
+	wire uart_idle;
+	reg [63:0] uart_buffer;
+	reg [3:0] uart_num;
 	
-	wire clk_1hz;
-	divx divx_1Hz(
-		.CLK(Clock), .RST(Reset), .DIV(25000000), .CLKout(clk_1hz)
+	UART_N UART_WriteN_inst(
+	.Clock(Clock) ,	// input  Clock_sig
+	.Reset(Reset) ,	// input  Reset_sig
+	.Buffer(uart_buffer) ,	// input [63:0] Buffer_sig
+	.Num(uart_num),	// input [3:0] Num_sig
+	.Trig_in(uart_trig) ,	// input  Trig_in_sig
+	.idle(uart_idle),	// output  idle_sig
+	.TX(TX) 	// output  TX_sig
 	);
 	
-	always @ (posedge clk_1hz, negedge Reset) 
+	wire ena_1hz;
+	divx_short #(25000000) divx_1Hz(
+		.Clock(Clock), .Reset(Reset), .ena(ena_1hz)
+	);
+	
+	always @(posedge Clock ,negedge Reset)
 		if(~Reset) begin
-			
+			uart_trig <= 1'b0;
+		end else if(ena_1hz) begin
+			uart_buffer <= {8'h5A,dist,illum,{7'b0, INT_ACL2},dist[7:0] ^ illum ^ {7'b0,INT_ACL2}};
+			uart_num <= 4'd8;
+			uart_trig <= 1'b1;
 		end else begin
-		// TODO...
-		
-		
-		
+			uart_trig <= 1'b0;
 		end
+
 endmodule
