@@ -20,8 +20,9 @@ module AlarmSystem(
    wire Clock = CLK;
    wire Reset = RST;
 
-   assign TX = TXD_Bluetooth;
-   assign RXD_Bluetooth = RX;
+   assign TX = 1'b1;
+   //assign TX = TXD_Bluetooth;
+   //assign RXD_Bluetooth = RX;
 
    assign Buzz = ~INT_ACL2;
    assign LD = {INT_ACL2,illum[3:0],dist[13:9]};
@@ -42,5 +43,37 @@ module AlarmSystem(
    Ultrasonic us(
       .Clock(Clock), .Reset(Reset),
       .dist(dist), .Trig(Trig_US), .Echo(Echo_US));
+
+   reg uart_trig;
+   wire uart_idle;
+   reg [63:0] uart_buffer;
+   reg [3:0] uart_num;
+
+   UART_N UART_WriteN_inst(
+      .Clock(Clock), .Reset(Reset),
+      .buffer(uart_buffer), .num(uart_num),
+      .trig_in(uart_trig), .idle(uart_idle),
+      .TX(RXD_Bluetooth));
+
+   wire ena_1hz;
+   divx_short #(25000000) divx_1Hz(.Clock(Clock), .Reset(Reset), .ena(ena_1hz));
+
+   always @(posedge Clock ,negedge Reset)
+      if (~Reset)
+         uart_trig <= 1'b0;
+      else if (ena_1hz)
+         begin
+            uart_buffer <= {
+               8'h5A,
+               dist,
+               illum,
+               {7'b0, INT_ACL2},
+               dist[7:0] ^ illum ^ {7'b0,INT_ACL2}
+            };
+            uart_num <= 4'd8;
+            uart_trig <= 1'b1;
+         end
+      else
+         uart_trig <= 1'b0;
 
 endmodule

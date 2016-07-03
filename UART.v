@@ -5,7 +5,8 @@ module UART_WriteD(
    output ready,
    input send,
    input [7:0] data,
-   output TX
+   output TX,
+   output tclk
    );
 `ifdef SIMULATION
    parameter div = 24;
@@ -21,14 +22,31 @@ module UART_WriteD(
    reg [3:0] cnt_bit;
 
    reg state;
+   reg send_tr, pre_send;
+
+   assign tclk = ~|cnt_freq;
 
    assign ready = Reset & (state == S_IDLE);
    assign TX = (state != S_SEND) | shift_reg[0];
 
+   always @(negedge Clock, negedge Reset)
+      if (~Reset)
+         begin
+            pre_send <= 1'b0;
+            send_tr <= 1'b0;
+         end
+      else
+         begin
+            send_tr <= 1'b0;
+            if(send && ~pre_send)
+               send_tr <= 1'b1;
+            pre_send <= send;
+         end
+
    always @(posedge Clock, negedge Reset)
       if (~Reset)
          state <= S_IDLE;
-      else if (state == S_IDLE && send)
+      else if (state == S_IDLE && send_tr)
          state <= S_SEND;
       else if (state == S_SEND && ~|cnt_bit && ~|cnt_freq)
          state <= S_IDLE;
@@ -36,7 +54,7 @@ module UART_WriteD(
    always @(posedge Clock, negedge Reset)
       if (~Reset)
          shift_reg <= 10'b0;
-      else if (state == S_IDLE && send)
+      else if (state == S_IDLE && send_tr)
          shift_reg <= {1'b1,data,1'b0};
       else if (state == S_SEND && ~|cnt_freq)
          shift_reg <= shift_reg >> 1;
