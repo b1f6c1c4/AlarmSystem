@@ -11,9 +11,10 @@ module Ultrasonic(
    parameter TIDLE = 20;
 `else
    parameter TTRIG = 500;
-   parameter TWAIT = 100000;
+   parameter TWAIT = 1000000;
    parameter TIDLE = 5000000;
 `endif
+   parameter MAX_COUNT = 100000;
 
    localparam S_IDLE = 2'h0;
    localparam S_TRIG = 2'h1;
@@ -27,50 +28,57 @@ module Ultrasonic(
    reg [31:0] count;
    always @(posedge Clock, negedge Reset)
       if (~Reset)
-         count <= TIDLE - 1;
+         begin
+            count <= TIDLE - 1;
+            dist <= 0;
+            state <= S_IDLE;
+         end
       else
          case (state)
             S_IDLE:
-               count <= (~|count ? TTRIG - 1 : count - 1);
+               if (~|count)
+                  begin
+                     state <= S_TRIG;
+                     count <= TTRIG - 1;
+                  end
+               else
+                  count <= count - 1;
             S_TRIG:
-               count <= (~|count ? TWAIT - 1 : count - 1);
+               if (~|count)
+                  begin
+                     state <= S_WAIT;
+                     count <= TWAIT - 1;
+                  end
+               else
+                  count <= count - 1;
             S_WAIT:
                if (Echo)
-                  count <= 0;
+                  begin
+                     count <= 0;
+                     state <= S_MEAS;
+                  end
+               else if (~|count)
+                  begin
+                     state <= S_IDLE;
+                     count <= TIDLE - 1;
+                  end
                else
-                  count <= (~|count ? TIDLE : count - 1);
+                  count <= count - 1;
             S_MEAS:
                if (~Echo)
-                  count <= TIDLE - 1;
+                  begin
+                     dist <= count;
+                     count <= TIDLE - 1;
+                     state <= S_IDLE;
+                  end
+               else if (count >= MAX_COUNT)
+                  begin
+                     dist <= count;
+                     count <= TIDLE - 1;
+                     state <= S_IDLE;
+                  end
                else
                   count <= count + 1;
          endcase
-
-   always @(posedge Clock, negedge Reset)
-      if (~Reset)
-         state <= S_IDLE;
-      else
-         case (state)
-            S_IDLE:
-               if (~|count)
-                  state <= S_TRIG;
-            S_TRIG:
-               if (~|count)
-                  state <= S_WAIT;
-            S_WAIT:
-               if (Echo)
-                  state <= S_MEAS;
-               else if (~|count)
-                  state <= S_IDLE;
-            S_MEAS:
-               if (~Echo)
-                  state <= S_IDLE;
-         endcase
-
-   always @(posedge Clock, negedge Reset)
-      if (~Reset)
-         dist <= 0;
-      else if (state == S_MEAS && ~Echo)
-         dist <= count;
 
 endmodule
