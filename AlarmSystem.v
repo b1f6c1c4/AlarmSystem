@@ -69,7 +69,7 @@ module AlarmSystem(
    assign state_report[55:48] = 8'h5a;
    assign state_report[47:16] = dist;
    assign state_report[15:8] = illum;
-   assign state_report[7:0] = {6'b0,buzzer,INT_ACL2};
+   assign state_report[7:0] = {6'b0,~buzzer,INT_ACL2};
 
    always @(posedge Clock ,negedge Reset)
       if (~Reset)
