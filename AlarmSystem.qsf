@@ -107,3 +107,4 @@ set_global_assignment -name VERILOG_FILE SPI.v
 set_global_assignment -name VERILOG_FILE PmodACL2.v
 set_global_assignment -name VERILOG_FILE PmodALS.v
 set_global_assignment -name VERILOG_FILE Ultrasonic.v
+set_global_assignment -name VERILOG_FILE divx_short.v

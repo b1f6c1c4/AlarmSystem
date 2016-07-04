@@ -65,17 +65,26 @@ module AlarmSystem(
    wire ena_5hz;
    divx_short #(5000000) divx_1Hz(.Clock(Clock), .Reset(Reset), .ena(ena_5hz));
 
+   wire [55:0] state_report;
+   assign state_report[55:48] = 8'h5a;
+   assign state_report[47:16] = dist;
+   assign state_report[15:8] = illum;
+   assign state_report[7:0] = {6'b0,buzzer,INT_ACL2};
+
    always @(posedge Clock ,negedge Reset)
       if (~Reset)
          uart_trig <= 1'b0;
       else if (ena_5hz)
          begin
             uart_buffer <= {
-               8'h5A,
-               dist,
-               illum,
-               {7'b0,INT_ACL2},
-               dist[7:0] ^ illum ^ {7'b0,INT_ACL2}
+               state_report,
+               state_report[55:48] ^
+               state_report[47:40] ^
+               state_report[39:32] ^
+               state_report[31:24] ^
+               state_report[23:16] ^
+               state_report[15:8] ^
+               state_report[7:0]
             };
             uart_num <= 4'd8;
             uart_trig <= 1'b1;
@@ -90,7 +99,6 @@ module AlarmSystem(
          case (uart_recv)
             8'h88: buzzer <= 1'b0;
             8'h99: buzzer <= 1'b1;
-            default: buzzer <= 1'b1;
          endcase
 
 endmodule
