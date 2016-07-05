@@ -4,6 +4,7 @@ module PmodALS(
    input Reset,
    output ready,
    input fetch,
+   output reg arrived,
    output reg [7:0] illum,
    output SCLK,
    input MISO,
@@ -42,6 +43,13 @@ module PmodALS(
                else
                   spi_send <= 1'b0;
          endcase
+
+
+   always @(posedge Clock, negedge Reset)
+      if (~Reset)
+         arrived <= 1'b0;
+      else if (spi_arrx)
+         arrived <= 1'b1;
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)

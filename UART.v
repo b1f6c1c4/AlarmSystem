@@ -4,6 +4,7 @@ module UART_WriteD(
    input Reset,
    output ready,
    input send,
+   output reg finish,
    input [7:0] data,
    output TX
    );
@@ -71,6 +72,14 @@ module UART_WriteD(
          cnt_freq <= ~|cnt_freq ? div - 1 : cnt_freq - 1;
       else
          cnt_freq <= div - 1;
+
+   always @(posedge Clock, negedge Reset)
+      if (~Reset)
+         finish <= 1'b0;
+      else if (state == S_SEND && ~|cnt_bit && ~|cnt_freq)
+         finish <= 1'b1;
+      else
+         finish <= 1'b0;
 
 endmodule
 

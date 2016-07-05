@@ -4,6 +4,7 @@ module PmodACL2(
    input Reset,
    output ready,
    input fetch,
+   output reg arrived,
    output reg [23:0] acc,
    output SCLK,
    input MISO,
@@ -166,16 +167,24 @@ module PmodACL2(
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)
-         acc <= 23'b0;
+         acc <= 24'b0;
       else
          case (state)
             S_FINI:
                if (fetch)
-                  acc <= 23'b0;
+                  acc <= 24'b0;
             S_RAXH, S_RAYH, S_RAZH:
                if (spi_arrx)
                   acc <= acc + acc_one * acc_one;
          endcase
+
+   always @(posedge Clock, negedge Reset)
+      if (~Reset)
+         arrived <= 1'b0;
+      else if (state == S_RAZH && spi_arrx)
+         arrived <= 1'b1;
+      else
+         arrived <= 1'b0;
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)
