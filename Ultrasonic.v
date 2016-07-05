@@ -2,6 +2,7 @@
 module Ultrasonic(
    input Clock,
    input Reset,
+   output reg [1:0] state,
    output reg [31:0] dist,
    output Trig,
    input Echo);
@@ -22,8 +23,6 @@ module Ultrasonic(
    localparam S_MEAS = 2'h3;
 
    assign Trig = (state == S_TRIG);
-
-   reg [1:0] state;
 
    reg [31:0] count;
    always @(posedge Clock, negedge Reset)
