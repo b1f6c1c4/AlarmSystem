@@ -38,7 +38,7 @@ module PmodALS(
             S_SEND:
                if (spi_arrx)
                   state <= S_FINI;
-               else if (spi_ready)
+               else if (~spi_send && spi_ready)
                   spi_send <= 1'b1;
                else
                   spi_send <= 1'b0;
@@ -50,6 +50,8 @@ module PmodALS(
          arrived <= 1'b0;
       else if (spi_arrx)
          arrived <= 1'b1;
+      else
+         arrived <= 1'b0;
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)
