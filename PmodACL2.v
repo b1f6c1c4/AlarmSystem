@@ -27,7 +27,7 @@ module PmodACL2(
    reg [2:0] pc;
    reg [7:0] spi_data;
    reg spi_send;
-   wire [23:0] spi_dataO;
+   wire [7:0] spi_dataO;
    reg [11:0] acc_one;
    wire spi_ready, spi_arrx;
 
@@ -46,7 +46,7 @@ module PmodACL2(
             S_SINS:
                if (spi_arrx)
                   state <= S_SADD;
-               else if (spi_ready)
+               else if (~spi_send && spi_ready)
                   begin
                      spi_data <= 8'h0a;
                      spi_send <= 1'b1;
@@ -69,7 +69,7 @@ module PmodACL2(
                   state <= S_FINI;
                else if (spi_ready)
                   begin
-                     spi_data <= 8'h2a;
+                     spi_data <= 8'h22;
                      spi_send <= 1'b1;
                   end
                else
@@ -98,7 +98,7 @@ module PmodACL2(
                   state <= S_RAXL;
                else if (spi_ready)
                   begin
-                     spi_data <= 8'h0c;
+                     spi_data <= 8'h0e;
                      spi_send <= 1'b1;
                   end
                else
@@ -165,18 +165,15 @@ module PmodACL2(
                   spi_send <= 1'b0;
          endcase
 
+   reg acc_agg;
+   wire signed [11:0] acc_one_temp = acc_one;
    always @(posedge Clock, negedge Reset)
       if (~Reset)
          acc <= 24'b0;
-      else
-         case (state)
-            S_FINI:
-               if (fetch)
-                  acc <= 24'b0;
-            S_RAXH, S_RAYH, S_RAZH:
-               if (spi_arrx)
-                  acc <= acc + acc_one * acc_one;
-         endcase
+      else if (state == S_FINI && fetch)
+         acc <= 24'b0;
+      else if (acc_agg)
+         acc <= acc + acc_one_temp * acc_one_temp;
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)
@@ -185,6 +182,19 @@ module PmodACL2(
          arrived <= 1'b1;
       else
          arrived <= 1'b0;
+
+   always @(posedge Clock, negedge Reset)
+      if (~Reset)
+         acc_agg <= 1'b0;
+      else if (spi_arrx)
+         case (state)
+            S_RAXH, S_RAYH, S_RAZH:
+               acc_agg <= 1'b1;
+            default:
+               acc_agg <= 1'b0;
+         endcase
+      else
+         acc_agg <= 1'b0;
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)

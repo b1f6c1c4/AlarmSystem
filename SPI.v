@@ -70,7 +70,7 @@ module SPI_Master(
          SCLK <= 1'b0;
       else if (state == S_IDLE)
          SCLK <= 1'b0;
-      else if (~|cnt_freq)
+      else if (|cnt_bit && ~|cnt_freq)
          SCLK <= ~SCLK;
 
    always @(posedge Clock, negedge Reset)
