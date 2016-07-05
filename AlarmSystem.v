@@ -44,53 +44,35 @@ module AlarmSystem(
       .Clock(Clock), .Reset(Reset),
       .dist(dist), .Trig(Trig_US), .Echo(Echo_US));
 
+   reg buf_ena;
+   reg [4:0] buf_pc;
+   reg [7:0] buf_data;
+   wire [7:0] buf_Q;
+
+   ram #(.N(8), .M(5)) tx_buf(
+      .Clock(Clock),
+      .WE(buf_ena), .A(buf_pc),
+      .D(buf_data), .Q(buf_Q));
+
    reg uart_trig;
    wire uart_idle;
    wire uart_arr;
+   reg [7:0] uart_data;
    wire [7:0] uart_recv;
-   reg [63:0] uart_buffer;
-   reg [3:0] uart_num;
 
-   UART_N UART_WriteN_inst(
+   UART_WriteD UART_WriteD_inst(
       .Clock(Clock), .Reset(Reset),
-      .buffer(uart_buffer), .num(uart_num),
-      .trig_in(uart_trig), .idle(uart_idle),
+      .ready(uart_idle), .send(uart_trig),
+      .data(uart_data),
       .TX(RXD_Bluetooth));
 
-   UART_ReadD UART_READ_inst(
+   UART_ReadD UART_ReadD_inst(
       .Clock(Clock), .Reset(Reset),
       .arrived(uart_arr), .data(uart_recv),
       .RX(TXD_Bluetooth));
 
    wire ena_5hz;
    divx_short #(5000000) divx_1Hz(.Clock(Clock), .Reset(Reset), .ena(ena_5hz));
-
-   wire [55:0] state_report;
-   assign state_report[55:48] = 8'h5a;
-   assign state_report[47:16] = dist;
-   assign state_report[15:8] = illum;
-   assign state_report[7:0] = {6'b0,~buzzer,INT_ACL2};
-
-   always @(posedge Clock ,negedge Reset)
-      if (~Reset)
-         uart_trig <= 1'b0;
-      else if (ena_5hz)
-         begin
-            uart_buffer <= {
-               state_report,
-               state_report[55:48] ^
-               state_report[47:40] ^
-               state_report[39:32] ^
-               state_report[31:24] ^
-               state_report[23:16] ^
-               state_report[15:8] ^
-               state_report[7:0]
-            };
-            uart_num <= 4'd8;
-            uart_trig <= 1'b1;
-         end
-      else
-         uart_trig <= 1'b0;
 
    always @(posedge Clock, negedge Reset)
       if(~Reset)

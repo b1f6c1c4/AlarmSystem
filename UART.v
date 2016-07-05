@@ -5,8 +5,7 @@ module UART_WriteD(
    output ready,
    input send,
    input [7:0] data,
-   output TX,
-   output tclk
+   output TX
    );
 `ifdef SIMULATION
    parameter div = 24;
@@ -23,8 +22,6 @@ module UART_WriteD(
 
    reg state;
    reg send_tr, pre_send;
-
-   assign tclk = ~|cnt_freq;
 
    assign ready = Reset & (state == S_IDLE);
    assign TX = (state != S_SEND) | shift_reg[0];
