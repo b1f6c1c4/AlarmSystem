@@ -27,7 +27,7 @@ module PmodACL2(
    reg [2:0] pc;
    reg [7:0] spi_data;
    reg spi_send;
-   wire [23:0] spi_dataO;
+   wire [7:0] spi_dataO;
    reg [11:0] acc_one;
    wire spi_ready, spi_arrx;
 

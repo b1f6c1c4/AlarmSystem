@@ -15,6 +15,7 @@ module AlarmSystem(
    output CS_ACL2,
    output Trig_US,
    input Echo_US);
+   localparam S_INIT = 4'h8;
    localparam S_IDLE = 4'h0;
    localparam S_WINI = 4'h1;
    localparam S_RALS = 4'h2;
@@ -124,9 +125,9 @@ module AlarmSystem(
    always @(posedge Clock, negedge Reset)
       if (~Reset)
          begin
-            state <= S_IDLE;
+            state <= S_INIT;
             als_clk_ena <= 1'b0;
-            acl_clk_ena <= 1'b0;
+            acl_clk_ena <= 1'b1;
             als_fetch <= 1'b0;
             acl_fetch <= 1'b0;
             us_dist_buf <= 32'b0;
@@ -138,6 +139,12 @@ module AlarmSystem(
          end
       else
          case (state)
+            S_INIT:
+               if (acl_ready)
+                  begin
+                     state <= S_IDLE;
+                     acl_clk_ena <= 1'b0;
+                  end
             S_IDLE:
                if (main_ena)
                   begin
@@ -156,6 +163,7 @@ module AlarmSystem(
                if (als_arr)
                   begin
                      state <= S_WALS;
+                     als_clk_ena <= 1'b0;
                      buf_ena <= 1'b1;
                      buf_data <= als_illum;
                   end
@@ -176,6 +184,7 @@ module AlarmSystem(
                if (acl_arr)
                   begin
                      state <= S_WAC0;
+                     acl_clk_ena <= 1'b0;
                      buf_ena <= 1'b1;
                      buf_data <= acl_acc[23:16];
                   end
@@ -188,7 +197,7 @@ module AlarmSystem(
                   acl_fetch <= 1'b0;
             S_WAC0:
                begin
-                  state <= S_WAC0;
+                  state <= S_WAC1;
                   buf_pc <= buf_pc + 4'b1;
                   buf_data <= acl_acc[15:8];
                end
