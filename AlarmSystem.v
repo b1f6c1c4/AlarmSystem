@@ -24,14 +24,32 @@ module AlarmSystem(
    localparam S_WAC0 = 5'h06;
    localparam S_WAC1 = 5'h07;
    localparam S_WAC2 = 5'h08;
-   localparam S_WUS0 = 5'h09;
-   localparam S_WUS1 = 5'h0a;
-   localparam S_WUS2 = 5'h0b;
-   localparam S_WUS3 = 5'h0c;
-   localparam S_WFLG = 5'h0d;
-   localparam S_LOAD = 5'h0e;
-   localparam S_SEND = 5'h0f;
-   localparam S_SCHK = 5'h10;
+   localparam S_WAC3 = 5'h09;
+   localparam S_WUS0 = 5'h0a;
+   localparam S_WUS1 = 5'h0b;
+   localparam S_WUS2 = 5'h0c;
+   localparam S_WUS3 = 5'h0d;
+   localparam S_WFLG = 5'h0e;
+   localparam S_LOAD = 5'h0f;
+   localparam S_SEND = 5'h10;
+   localparam S_SCHK = 5'h11;
+
+   /* UART Package Format
+    *
+    * 0  0x5a
+    * 1  Illum
+    * 2  AX^2 + AY^2 + AZ^2 (MSB)
+    * 3  AX^2 + AY^2 + AZ^2 (...)
+    * 4  AX^2 + AY^2 + AZ^2 (...)
+    * 5  AX^2 + AY^2 + AZ^2 (LSB)
+    * 6  Dist (MSB)
+    * 7  Dist (...)
+    * 8  Dist (...)
+    * 9  Dist (LSB)
+    * 10 {7'b0,  BuzzerOn}
+    * 11 (Check: Xor of all above bytes)
+    *
+    */
 
    wire Clock = CLK;
    wire Reset;
@@ -55,7 +73,7 @@ module AlarmSystem(
 
    reg acl_fetch;
    wire acl_ready, acl_clk, acl_arr;
-   wire [23:0] acl_acc;
+   wire [31:0] acl_acc;
 
    wire [31:0] us_dist;
    reg [31:0] us_dist_buf;
@@ -189,7 +207,7 @@ module AlarmSystem(
                      state <= S_WAC0;
                      acl_clk_ena <= 1'b0;
                      buf_ena <= 1'b1;
-                     buf_data <= acl_acc[23:16];
+                     buf_data <= acl_acc[31:24];
                   end
                else if (~acl_fetch && acl_ready)
                   begin
@@ -202,15 +220,21 @@ module AlarmSystem(
                begin
                   state <= S_WAC1;
                   buf_pc <= buf_pc + 4'b1; // 4'd3
-                  buf_data <= acl_acc[15:8];
+                  buf_data <= acl_acc[23:16];
                end
             S_WAC1:
                begin
                   state <= S_WAC2;
                   buf_pc <= buf_pc + 4'b1; // 4'd4
-                  buf_data <= acl_acc[7:0];
+                  buf_data <= acl_acc[15:8];
                end
             S_WAC2:
+               begin
+                  state <= S_WAC3;
+                  buf_pc <= buf_pc + 4'b1; // 4'd5
+                  buf_data <= acl_acc[7:0];
+               end
+            S_WAC3:
                begin
                   state <= S_WUS0;
                   us_dist_buf <= us_dist;
@@ -220,25 +244,25 @@ module AlarmSystem(
             S_WUS0:
                begin
                   state <= S_WUS1;
-                  buf_pc <= buf_pc + 4'b1; // 4'd6
+                  buf_pc <= buf_pc + 4'b1; // 4'd7
                   buf_data <= us_dist_buf[23:16];
                end
             S_WUS1:
                begin
                   state <= S_WUS2;
-                  buf_pc <= buf_pc + 4'b1; // 4'd7
+                  buf_pc <= buf_pc + 4'b1; // 4'd8
                   buf_data <= us_dist_buf[15:8];
                end
             S_WUS2:
                begin
                   state <= S_WUS3;
-                  buf_pc <= buf_pc + 4'b1; // 4'd8
+                  buf_pc <= buf_pc + 4'b1; // 4'd9
                   buf_data <= us_dist_buf[7:0];
                end
             S_WUS3:
                begin
                   state <= S_WFLG;
-                  buf_pc <= buf_pc + 4'b1; // 4'd9
+                  buf_pc <= buf_pc + 4'b1; // 4'd10
                   buf_data <= {7'b0,~buzzer};
                end
             S_WFLG:
@@ -250,7 +274,7 @@ module AlarmSystem(
             S_LOAD:
                state <= S_SEND;
             S_SEND:
-               if (uart_fini && buf_pc == 4'd10 - 4'b1)
+               if (uart_fini && buf_pc == 4'd11)
                   state <= S_SCHK;
                else if (~uart_trig && uart_ready)
                   begin
@@ -266,7 +290,7 @@ module AlarmSystem(
                else if (~uart_trig && uart_ready)
                   begin
                      uart_trig <= 1'b1;
-                     uart_data <= chk_byte;
+                     uart_data <= chk_byte; // 4'd11
                   end
                else
                   uart_trig <= 1'b0;

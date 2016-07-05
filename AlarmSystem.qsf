@@ -95,7 +95,6 @@ set_location_assignment PIN_88 -to MOSI
 set_location_assignment PIN_106 -to CS_ALS
 # PmodACL2
 set_location_assignment PIN_102 -to CS_ACL2
-set_location_assignment PIN_99 -to INT_ACL2
 # Ultrasonic
 set_location_assignment PIN_92 -to Trig_US
 set_location_assignment PIN_89 -to Echo_US

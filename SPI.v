@@ -29,7 +29,7 @@ module SPI_Master(
    reg [W-1:0] cnt_bit;
 
    reg state;
-   reg bit;
+   reg the_bit;
 
    assign ready = Reset & (state == S_IDLE);
    assign MOSI = (state == S_SEND) ? shift_reg[N-1] : 1'bz;
@@ -45,9 +45,9 @@ module SPI_Master(
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)
-         bit <= 1'b0;
+         the_bit <= 1'b0;
       else if (~|cnt_freq && ~SCLK)
-         bit <= MISO;
+         the_bit <= MISO;
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)
@@ -55,7 +55,7 @@ module SPI_Master(
       else if (state == S_IDLE && send)
          shift_reg <= data;
       else if (~|cnt_freq && SCLK)
-         shift_reg <= {shift_reg[N-2:0],bit};
+         shift_reg <= {shift_reg[N-2:0],the_bit};
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)
@@ -118,7 +118,7 @@ module SPI_Slave(
    reg [N-1:0] shift_reg;
 
    reg state;
-   reg bit;
+   reg the_bit;
    reg old_clk;
 
    assign MISO = (state == S_SEND && ~CS) ? shift_reg[N-1] : 1'bz;
@@ -133,9 +133,9 @@ module SPI_Slave(
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)
-         bit <= 1'b0;
+         the_bit <= 1'b0;
       else if (~old_clk && SCLK)
-         bit <= MOSI;
+         the_bit <= MOSI;
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)
@@ -149,7 +149,7 @@ module SPI_Slave(
       else if (state == S_IDLE)
          shift_reg <= data;
       else if (old_clk && ~SCLK)
-         shift_reg <= {shift_reg[N-2:0],bit};
+         shift_reg <= {shift_reg[N-2:0],the_bit};
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)

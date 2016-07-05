@@ -5,7 +5,7 @@ module PmodACL2(
    output ready,
    input fetch,
    output reg arrived,
-   output reg [23:0] acc,
+   output reg [31:0] acc,
    output SCLK,
    input MISO,
    output MOSI,
@@ -167,13 +167,15 @@ module PmodACL2(
 
    reg acc_agg;
    wire signed [11:0] acc_one_temp = acc_one;
+   wire signed [24:0] acc_temp = acc_one_temp * acc_one_temp;
+
    always @(posedge Clock, negedge Reset)
       if (~Reset)
-         acc <= 24'b0;
+         acc <= 32'b0;
       else if (state == S_FINI && fetch)
-         acc <= 24'b0;
+         acc <= 32'b0;
       else if (acc_agg)
-         acc <= acc + acc_one_temp * acc_one_temp;
+         acc <= acc + $unsigned(acc_temp);
 
    always @(posedge Clock, negedge Reset)
       if (~Reset)
