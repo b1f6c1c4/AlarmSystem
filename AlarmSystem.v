@@ -13,7 +13,6 @@ module AlarmSystem(
    output MOSI,
    output CS_ALS,
    output CS_ACL2,
-   input INT_ACL2,
    output Trig_US,
    input Echo_US);
 
@@ -23,21 +22,32 @@ module AlarmSystem(
    assign TX = 1'b1;
 
    assign Buzz = buzzer;
-   assign LD = {INT_ACL2,illum[3:0],dist[13:9]};
+   assign LD = {als_illum[3:0],dist[14:9]};
 
    reg buzzer;
 
-   wire als_clk, acl_clk, acl_ed;
-   wire [7:0] illum;
    assign SCLK = acl_ed ? als_clk : acl_clk;
+
+   reg als_fetch;
+   wire als_ready, als_clk;
+   wire [7:0] als_illum;
+
+   reg acl_fetch;
+   wire acl_ready, acl_clk;
+   wire [23:0] acl_acc;
+
    wire [31:0] dist;
 
    PmodALS als(
-      .Clock(Clock), .Reset(acl_ed), .illum(illum),
+      .Clock(Clock), .Reset(Reset),
+      .ready(als_ready), .fetch(als_fetch),
+      .als_illum(als_illum),
       .SCLK(als_clk), .MISO(MISO),
       .MOSI(MOSI), .CS(CS_ALS));
    PmodACL2 acl(
-      .Clock(Clock), .Reset(Reset), .done(acl_ed),
+      .Clock(Clock), .Reset(Reset),
+      .ready(acl_ready), .fetch(acl_fetch),
+      .acc(acl_acc),
       .SCLK(acl_clk), .MISO(MISO),
       .MOSI(MOSI), .CS(CS_ACL2));
    Ultrasonic us(
@@ -72,7 +82,7 @@ module AlarmSystem(
       .RX(TXD_Bluetooth));
 
    wire ena_5hz;
-   divx_short #(5000000) divx_1Hz(.Clock(Clock), .Reset(Reset), .ena(ena_5hz));
+   divx_short #(5000000) divx_5Hz(.Clock(Clock), .Reset(Reset), .ena(ena_5hz));
 
    always @(posedge Clock, negedge Reset)
       if(~Reset)
