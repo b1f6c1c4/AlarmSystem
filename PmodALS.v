@@ -16,7 +16,7 @@ module PmodALS(
    reg state;
    reg spi_send;
    reg [2:0] pc;
-   wire [14:0] spi_dataO;
+   wire [15:0] spi_dataO;
    wire spi_ready, spi_arrx;
 
    assign ready = (state == S_FINI);
@@ -57,12 +57,12 @@ module PmodALS(
       if (~Reset)
          illum <= 3'd0;
       else if (spi_arrx)
-         illum <= spi_dataO[10:3];
+         illum <= spi_dataO[11:4];
 
-   SPI_Master #(15) sm(
+   SPI_Master #(16) sm(
       .Clock(Clock), .Reset(Reset),
       .ready(spi_ready), .send(spi_send), .arrived(spi_arrx),
-      .data(15'h5a5a), .dataO(spi_dataO),
+      .data(16'h5a5a), .dataO(spi_dataO),
       .SCLK(SCLK), .MISO(MISO),
       .MOSI(MOSI), .CS(CS));
 
