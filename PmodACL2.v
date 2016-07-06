@@ -9,7 +9,12 @@ module PmodACL2(
    output SCLK,
    input MISO,
    output MOSI,
-   output reg CS);
+   output reg CS
+`ifdef SIMULATION
+   ,
+   output rawCS
+`endif
+   );
    localparam S_SINS = 4'h0;
    localparam S_SADD = 4'h1;
    localparam S_SDAT = 4'h2;
@@ -22,6 +27,7 @@ module PmodACL2(
    localparam S_RAYH = 4'h9;
    localparam S_RAZL = 4'ha;
    localparam S_RAZH = 4'hb;
+   localparam S_PREP = 4'hc;
 
    reg [3:0] state;
    reg [2:0] pc;
@@ -155,7 +161,7 @@ module PmodACL2(
                   spi_send <= 1'b0;
             S_RAZH:
                if (spi_arrx)
-                  state <= S_FINI;
+                  state <= S_PREP;
                else if (spi_ready)
                   begin
                      spi_data <= 8'h00;
@@ -163,6 +169,8 @@ module PmodACL2(
                   end
                else
                   spi_send <= 1'b0;
+            S_PREP:
+               state <= S_FINI;
          endcase
 
    reg acc_agg;
@@ -180,7 +188,7 @@ module PmodACL2(
    always @(posedge Clock, negedge Reset)
       if (~Reset)
          arrived <= 1'b0;
-      else if (state == S_RAZH && spi_arrx)
+      else if (state == S_PREP)
          arrived <= 1'b1;
       else
          arrived <= 1'b0;
@@ -216,6 +224,11 @@ module PmodACL2(
       .ready(spi_ready), .send(spi_send), .arrived(spi_arrx),
       .data(spi_data), .dataO(spi_dataO),
       .SCLK(SCLK), .MISO(MISO),
-      .MOSI(MOSI));
+      .MOSI(MOSI)
+`ifdef SIMULATION
+      ,
+      .CS(rawCS)
+`endif
+      );
 
 endmodule
