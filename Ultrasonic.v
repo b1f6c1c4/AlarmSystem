@@ -2,7 +2,9 @@
 module Ultrasonic(
    input Clock,
    input Reset,
+`ifndef SIMULATION
    output reg [1:0] state,
+`endif
    output reg [31:0] dist,
    output Trig,
    input Echo);
@@ -10,17 +12,22 @@ module Ultrasonic(
    parameter TTRIG = 5;
    parameter TWAIT = 100;
    parameter TIDLE = 20;
+   parameter MAX_COUNT = 1000;
 `else
    parameter TTRIG = 500;
    parameter TWAIT = 1000000;
    parameter TIDLE = 5000000;
-`endif
    parameter MAX_COUNT = 100000;
+`endif
 
    localparam S_IDLE = 2'h0;
    localparam S_TRIG = 2'h1;
    localparam S_WAIT = 2'h2;
    localparam S_MEAS = 2'h3;
+
+`ifdef SIMULATION
+   reg [1:0] state;
+`endif
 
    assign Trig = (state == S_TRIG);
 
