@@ -99,6 +99,8 @@ set_location_assignment PIN_102 -to CS_ACL2
 set_location_assignment PIN_92 -to Trig_US
 set_location_assignment PIN_89 -to Echo_US
 set_global_assignment -name VERILOG_FILE AlarmSystem.v
+set_global_assignment -name VERILOG_FILE Main.v
+set_global_assignment -name VERILOG_FILE rst_recover.v
 set_global_assignment -name VERILOG_FILE ram.v
 set_global_assignment -name VERILOG_FILE UART.v
 set_global_assignment -name VERILOG_FILE SPI.v
@@ -106,4 +108,3 @@ set_global_assignment -name VERILOG_FILE PmodACL2.v
 set_global_assignment -name VERILOG_FILE PmodALS.v
 set_global_assignment -name VERILOG_FILE Ultrasonic.v
 set_global_assignment -name VERILOG_FILE divx_short.v
-set_global_assignment -name VERILOG_FILE rst_recover.v
